@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-6 pt-20">
+    <!-- Animated blobs -->
+    <div class="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+    
+    <div class="glass w-full max-w-md p-10 rounded-3xl border border-white/10 shadow-2xl text-center relative z-10">
+        <!-- Icône Email -->
+        <div class="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.3)] animate-pulse">
+            <svg class="w-10 h-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+        </div>
+
+        <h2 class="text-3xl font-bold text-white mb-4">Vérifiez votre boîte mail</h2>
+        
+        <p class="text-gray-300 text-sm mb-6 leading-relaxed">
+            Nous avons envoyé un e-mail avec un lien de confirmation à votre adresse.<br>
+            <span class="font-bold text-white block mt-2">Vous devez confirmer votre e-mail pour activer votre compte G-Parc.</span>
+        </p>
+
+        <div class="bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-left mb-8">
+            <h4 class="text-gray-400 font-bold uppercase tracking-wider mb-2">Astuces :</h4>
+            <ul class="text-gray-500 list-disc list-inside space-y-1">
+                <li>Vérifiez vos dossiers <strong>Spams</strong> ou <strong>Indésirables</strong>.</li>
+                <li>L'email de confirmation peut prendre quelques minutes à arriver.</li>
+            </ul>
+        </div>
+
+        <a href="{% url 'account_login' %}" 
+            class="inline-block w-full py-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all border border-white/10 cursor-pointer">
+            Retour à la connexion
+        </a>
+    </div>
+</div>
+{% endblock %}

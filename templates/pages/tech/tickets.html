@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="px-6 py-20 pb-32 max-w-7xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-white mb-2">Centre de Réparation (Tickets)</h1>
+            <p class="text-gray-400 text-sm">Gérez les pannes, diagnostiquez et mettez à jour l'inventaire.</p>
+        </div>
+        <a href="{% url 'tech_dashboard' %}" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all text-sm font-semibold">
+            Retour
+        </a>
+    </div>
+
+    <div class="glass p-1 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
+        <div class="overflow-x-auto p-7">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="text-gray-400 text-xs uppercase tracking-widest border-b border-white/10">
+                        <th class="p-4 font-semibold w-16">ID</th>
+                        <th class="p-4 font-semibold">Appareil & N°Série</th>
+                        <th class="p-4 font-semibold">Signalement</th>
+                        <th class="p-4 font-semibold w-24">Priorité</th>
+                        <th class="p-4 font-semibold w-32">Statut</th>
+                        <th class="p-4 font-semibold text-right w-32">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-300 text-sm">
+                    {% for ticket in tickets %}
+                    <tr class="border-b border-white/5 hover:bg-slate-800/50 transition-colors group">
+                        <td class="p-4 font-mono text-gray-500">#{{ ticket.id }}</td>
+                        <td class="p-4">
+                            <div class="font-semibold text-white">{{ ticket.device.name }}</div>
+                            <div class="text-xs font-mono text-emerald-400 mt-1">SN: {{ ticket.device.serial_number }}</div>
+                        </td>
+                        <td class="p-4">
+                            <div class="line-clamp-2 text-gray-400">{{ ticket.description }}</div>
+                            <div class="text-xs text-gray-500 mt-1">Par: {{ ticket.reported_by.username }} le {{ ticket.created_at|date:"d/m/Y" }}</div>
+                        </td>
+                        <td class="p-4">
+                            {% if ticket.priority == 'HIGH' %}
+                            <div class="w-2 h-2 rounded-full bg-red-400 animate-pulse inline-block mr-1"></div><span class="text-red-400 text-xs font-bold">HAUTE</span>
+                            {% elif ticket.priority == 'MEDIUM' %}
+                            <div class="w-2 h-2 rounded-full bg-orange-400 inline-block mr-1"></div><span class="text-orange-400 text-xs font-bold">MOY.</span>
+                            {% else %}
+                            <div class="w-2 h-2 rounded-full bg-blue-400 inline-block mr-1"></div><span class="text-blue-400 text-xs font-bold">BASSE</span>
+                            {% endif %}
+                        </td>
+                        <td class="p-4">
+                            {% if ticket.is_resolved %}
+                            <span class="px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded text-xs font-bold">CLÔTURÉ</span>
+                            {% else %}
+                            <span class="px-2 py-1 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded text-xs font-bold">OUVERT</span>
+                            {% endif %}
+                        </td>
+                        <td class="p-4 text-right">
+                            <a href="{% url 'tech_handle_ticket' ticket.id %}" class="inline-block px-4 py-2 {% if ticket.is_resolved %}bg-white/10 hover:bg-white/20{% else %}bg-emerald-600 hover:bg-emerald-500{% endif %} text-white rounded-lg text-xs font-bold transition-all shadow-lg">
+                                {% if ticket.is_resolved %}Voir rapport{% else %}Traiter{% endif %}
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="p-8 text-center text-gray-500">Aucun ticket dans le système.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

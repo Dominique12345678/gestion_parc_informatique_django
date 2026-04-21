@@ -1,0 +1,58 @@
+{% extends "admin_base.html" %}
+{% block admin_content %}
+<div class="max-w-6xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white mb-2">Centre d'Assignation</h1>
+        <p class="text-gray-400 text-sm">Gérez les affectations du parc informatique entre techniciens et utilisateurs.</p>
+    </div>
+
+    <div class="glass p-1 rounded-3xl border border-blue-500/10 shadow-2xl overflow-hidden relative">
+        <div class="overflow-x-auto p-4">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-white/5 text-gray-400 text-xs uppercase tracking-widest border-b border-white/10">
+                        <th class="p-4 font-semibold">Équipement</th>
+                        <th class="p-4 font-semibold text-center">Statut Actuel</th>
+                        <th class="p-4 font-semibold">Affecté à</th>
+                        <th class="p-4 font-semibold text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-300 text-sm">
+                    {% for device in devices %}
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="p-4">
+                            <div class="font-bold text-white">{{ device.name }}</div>
+                            <div class="text-[10px] text-gray-500 font-mono">{{ device.serial_number }}</div>
+                        </td>
+                        <td class="p-4 text-center">
+                            {% if device.status == 'AVAILABLE' %}<span class="px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded-md text-xs font-bold border border-emerald-500/20">En Stock</span>
+                            {% elif device.status == 'ASSIGNED' %}<span class="px-2 py-1 bg-blue-500/10 text-blue-400 rounded-md text-xs font-bold border border-blue-500/20">Assigné</span>
+                            {% elif device.status == 'MAINTENANCE' %}<span class="px-2 py-1 bg-orange-500/10 text-orange-400 rounded-md text-xs font-bold border border-orange-500/20">Maintenance</span>
+                            {% else %}<span class="px-2 py-1 bg-red-500/10 text-red-400 rounded-md text-xs font-bold border border-red-500/20">HS</span>{% endif %}
+                        </td>
+                        <td class="p-4">
+                            {% if device.assigned_to %}
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-[10px] text-white font-bold">{{ device.assigned_to.username|make_list|first|upper }}</div>
+                                <span class="text-white font-medium">{{ device.assigned_to.username }}</span>
+                            </div>
+                            {% else %}
+                            <span class="text-gray-500 italic">Libre</span>
+                            {% endif %}
+                        </td>
+                        <td class="p-4 text-right">
+                            <a href="{% url 'admin_assign_device' device.id %}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all shadow-[0_0_15px_rgba(37,99,235,0.3)]">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                                {% if device.assigned_to %}Modifier / Reprendre{% else %}Assigner{% endif %}
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="p-8 text-center text-gray-500">Aucun appareil trouvé.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

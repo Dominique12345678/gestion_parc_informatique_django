@@ -1,0 +1,95 @@
+<nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" id="navbar">
+    <div class="container mx-auto px-6 py-4">
+        <div class="glass rounded-2xl px-6 py-3 flex items-center justify-between border border-white/10 shadow-xl">
+
+            <a href="{% url 'home' %}" class="flex items-center gap-2 group">
+                <div
+                    class="w-10 h-10 bg-gradient-to-tr from-blue-600 to-emerald-400 rounded-lg flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform">
+                    <span class="text-white font-bold text-xl">G</span>
+                </div>
+                <span class="text-xl font-bold tracking-tight text-white">
+                    G-Parc<span class="text-blue-400">.</span>
+                </span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-8">
+                <a href="{% url 'home' %}"
+                    class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Accueil</a>
+
+                {% if user.is_authenticated %}
+                    {% if user.is_admin or user.is_superuser %}
+                        <a href="{% url 'admin_manage_devices' %}" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Inventaire</a>
+                        <a href="{% url 'admin_manage_users' %}" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Utilisateurs</a>
+                    {% endif %}
+                    
+                    {% if user.is_technician %}
+                        <a href="{% url 'tech_tickets' %}" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Tickets</a>
+                    {% endif %}
+
+                    {% if user.is_verified or user.is_admin or user.is_superuser %}
+                        <a href="{% url 'user_dashboard' %}" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Mon Matériel</a>
+                    {% endif %}
+                {% endif %}
+
+                <div class="h-4 w-[1px] bg-white/20"></div>
+
+                {% if user.is_authenticated %}
+                <div class="flex items-center gap-4">
+                    {% if not user.is_verified and not user.is_admin and not user.is_superuser %}
+                    <a href="{% url 'verify_otp' %}"
+                        class="text-xs text-orange-400 bg-orange-400/10 px-2 py-1 rounded-md border border-orange-400/20 animate-pulse">
+                        Vérifier mon compte
+                    </a>
+                    {% else %}
+                    <span
+                        class="text-xs text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-md border border-emerald-400/20">
+                        {{ user.role.name|default:"Utilisateur" }}
+                    </span>
+                    {% endif %}
+
+                    <a href="{% url 'dashboard' %}"
+                        class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Dashboard</a>
+                    <a href="{% url 'profile' %}"
+                        class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Mon Compte</a>
+
+                    <form action="{% url 'account_logout' %}" method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit"
+                            class="text-sm font-medium text-red-400 hover:text-red-300 transition-colors">
+                            Déconnexion
+                        </button>
+                    </form>
+                </div>
+                {% else %}
+                <a href="{% url 'account_login' %}"
+                    class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Connexion</a>
+                <a href="{% url 'account_signup' %}"
+                    class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-blue-500/20">
+                    S'inscrire
+                </a>
+                {% endif %}
+            </div>
+
+            <button class="md:hidden p-2 text-gray-400 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<script>
+    window.addEventListener('scroll', function () {
+        const nav = document.getElementById('navbar');
+        const glassEffect = nav.querySelector('.glass');
+        if (window.scrollY > 50) {
+            nav.classList.add('py-2');
+            glassEffect.classList.add('mx-4', 'shadow-2xl', 'bg-slate-900/80');
+        } else {
+            nav.classList.remove('py-2');
+            glassEffect.classList.remove('mx-4', 'shadow-2xl', 'bg-slate-900/80');
+        }
+    });
+</script>

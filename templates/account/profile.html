@@ -1,0 +1,13 @@
+{% extends base_template|default:"base.html" %}
+
+{% block content %}
+    <div class="px-6 py-20 pb-32 max-w-2xl mx-auto">
+        {% include "account/_profile_form.html" %}
+    </div>
+{% endblock %}
+
+{% block admin_content %}
+    <div class="max-w-2xl mx-auto">
+        {% include "account/_profile_form.html" %}
+    </div>
+{% endblock %}

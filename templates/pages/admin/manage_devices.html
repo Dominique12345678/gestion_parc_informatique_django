@@ -1,0 +1,86 @@
+{% extends "admin_base.html" %}
+{% block admin_content %}
+<div class="flex items-center justify-between mb-8">
+    <div>
+        <h1 class="text-3xl font-bold text-white tracking-tight -mb-1">Inventaire Physique</h1>
+        <p class="text-gray-400 text-sm">Gérez les équipements informatiques.</p>
+    </div>
+    
+    <div class="flex gap-4">
+        <a href="{% url 'admin_add_device' %}" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-all font-bold text-sm shadow-lg shadow-blue-500/20 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Nouvel Appareil
+        </a>
+    </div>
+</div>
+
+<div class="glass p-1 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden">
+    <div class="overflow-x-auto p-7">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="text-gray-400 text-[10px] uppercase tracking-widest border-b border-white/10">
+                    <th class="p-4 font-semibold">Image</th>
+                    <th class="p-4 font-semibold">Désignation & S/N</th>
+                    <th class="p-4 font-semibold">Catégorie</th>
+                    <th class="p-4 font-semibold w-12 text-center">Status</th>
+                    <th class="p-4 font-semibold">Affectation</th>
+                    <th class="p-4 font-semibold text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="text-gray-300 text-sm">
+                {% for device in devices %}
+                <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                    <td class="p-4">
+                        {% if device.image %}
+                        <img src="{{ device.image.url }}" class="w-10 h-10 rounded-lg object-cover border border-white/10">
+                        {% else %}
+                        <div class="w-10 h-10 rounded-lg bg-gray-800 border border-white/5"></div>
+                        {% endif %}
+                    </td>
+                    <td class="p-4">
+                        <div class="font-bold text-white">{{ device.name }}</div>
+                        <div class="text-xs font-mono text-emerald-400">{{ device.serial_number }}</div>
+                    </td>
+                    <td class="p-4 text-gray-400">{{ device.category.name }}</td>
+                    <td class="p-4 text-center">
+                        {% if device.status == 'AVAILABLE' %}<div class="w-2.5 h-2.5 rounded-full bg-emerald-500 mx-auto shadow-[0_0_8px_rgba(16,185,129,0.5)]" title="Disponible"></div>
+                        {% elif device.status == 'ASSIGNED' %}<div class="w-2.5 h-2.5 rounded-full bg-blue-500 mx-auto shadow-[0_0_8px_rgba(59,130,246,0.5)]" title="Assigné"></div>
+                        {% elif device.status == 'MAINTENANCE' %}<div class="w-2.5 h-2.5 rounded-full bg-orange-500 mx-auto animate-pulse shadow-[0_0_8px_rgba(249,115,22,0.5)]" title="Maintenance"></div>
+                        {% else %}<div class="w-2.5 h-2.5 rounded-full bg-red-500 mx-auto shadow-[0_0_8px_rgba(239,68,68,0.5)]" title="Hors-Service"></div>{% endif %}
+                    </td>
+                    <td class="p-4 text-xs font-semibold">
+                        {% if device.assigned_to %}
+                        <span class="px-2 py-1 bg-white/10 border border-white/10 rounded-md text-white">@{{ device.assigned_to.username }}</span>
+                        {% else %}
+                        <span class="text-gray-500 line-through">Aucune</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-4 text-right">
+                        <!-- Dropdown Actions -->
+                        <div class="relative inline-block text-left group/drop">
+                            <button class="p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white transition-all">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+                            </button>
+                            <!-- Menu -->
+                            <div class="absolute right-0 mt-2 w-48 bg-slate-800 border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover/drop:opacity-100 group-hover/drop:visible transition-all z-50 overflow-hidden">
+                                <a href="{% url 'admin_device_success' device.id %}" class="block px-4 py-2 text-xs text-white hover:bg-white/10 transition-colors border-b border-white/5">Voir QR Code</a>
+                                <a href="{% url 'admin_assign_device' device.id %}" class="block px-4 py-2 text-xs text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 font-bold transition-colors border-b border-white/5">Assigner / Désaffecter</a>
+                                <a href="{% url 'admin_edit_device' device.id %}" class="block px-4 py-2 text-xs text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300 transition-colors border-b border-white/5">Modifier fiche</a>
+                                <a href="{% url 'admin_device_history' device.id %}" class="block px-4 py-2 text-xs text-gray-300 hover:bg-white/10 transition-colors border-b border-white/5">Voir l'Historique</a>
+                                
+                                <form action="{% url 'admin_delete_device' device.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-xs text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors font-bold" onclick="return confirm('Mettre cet appareil aux rebuts / corbeille (suppression logique) ?');">Supprimer (HS)</button>
+                                </form>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="p-10 text-center text-gray-500">Aucun équipement enregistré.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

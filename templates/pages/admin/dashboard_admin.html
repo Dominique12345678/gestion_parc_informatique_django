@@ -1,0 +1,176 @@
+{% extends "admin_base.html" %}
+{% block admin_content %}
+<div class="mb-10">
+    <h1 class="text-3xl font-bold text-white tracking-tight">Tableau de bord Analytique</h1>
+    <p class="text-gray-400 mt-2 text-sm">Vue globale et métriques en temps réel de votre parc informatique.</p>
+</div>
+
+<!-- Key Performance Indicators (KPIs) -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="glass p-6 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden group hover:bg-white/5 transition-all">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all"></div>
+        <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">Utilisateurs</h3>
+        <p class="text-4xl font-black text-white">{{ total_users }}</p>
+    </div>
+    
+    <div class="glass p-6 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden group hover:bg-white/5 transition-all">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-all"></div>
+        <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">Total Équipements</h3>
+        <p class="text-4xl font-black text-emerald-400">{{ total_devices }}</p>
+    </div>
+
+    <div class="glass p-6 rounded-3xl border border-red-500/20 shadow-2xl bg-red-900/10 relative overflow-hidden group hover:bg-red-900/20 transition-all">
+        <div class="flex justify-between items-start">
+            <div>
+                <h3 class="text-red-400 text-xs font-bold uppercase tracking-widest mb-2">En panne</h3>
+                <p class="text-4xl font-black text-red-500">{{ broken_devices }}</p>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+        </div>
+    </div>
+
+    <div class="glass p-6 rounded-3xl border border-orange-500/20 shadow-2xl bg-orange-900/10 relative overflow-hidden group hover:bg-orange-900/20 transition-all">
+        <h3 class="text-orange-400 text-xs font-bold uppercase tracking-widest mb-2">Tickets Ouverts</h3>
+        <p class="text-4xl font-black text-orange-400">{{ pending_tickets }}</p>
+    </div>
+</div>
+
+<!-- Graphiques Chart.js -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <div class="glass p-6 rounded-3xl border border-white/5 shadow-2xl">
+        <h2 class="text-lg font-bold text-white mb-6">Répartition par Catégorie</h2>
+        <div class="relative h-64 w-full">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="glass p-6 rounded-3xl border border-white/5 shadow-2xl">
+        <h2 class="text-lg font-bold text-white mb-6">État de Santé du Parc (KPI)</h2>
+        <div class="relative h-64 w-full">
+            <canvas id="healthChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Tables : Derniers Ajouts & Tickets Récents -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Équipements récents -->
+    <div class="glass p-6 rounded-3xl border border-white/5 shadow-2xl">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-lg font-bold text-white">Derniers Équipements</h2>
+            <a href="{% url 'admin_manage_devices' %}" class="text-xs text-blue-400 hover:text-white transition-colors">Tout voir &rarr;</a>
+        </div>
+        <div class="space-y-4">
+            {% for dev in recent_devices %}
+            <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5">
+                {% if dev.image %}
+                <img src="{{ dev.image.url }}" class="w-12 h-12 rounded-lg object-cover">
+                {% else %}
+                <div class="w-12 h-12 rounded-lg bg-gray-800 flex items-center justify-center border border-white/5"><svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></div>
+                {% endif %}
+                <div class="flex-1">
+                    <h4 class="text-sm font-bold text-white">{{ dev.name }}</h4>
+                    <span class="text-[10px] text-gray-400 uppercase tracking-widest">{{ dev.category.name }}</span>
+                </div>
+                <div>
+                    {% if dev.status == 'AVAILABLE' %}<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Stock</span>
+                    {% elif dev.status == 'ASSIGNED' %}<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">Assigné</span>
+                    {% elif dev.status == 'MAINTENANCE' %}<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-orange-500/10 text-orange-400 border border-orange-500/20">Maint.</span>
+                    {% else %}<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20">HS</span>{% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-sm text-gray-500 text-center py-4">Aucun équipement enregistré.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Tickets -->
+    <div class="glass p-6 rounded-3xl border border-white/5 shadow-2xl">
+        <h2 class="text-lg font-bold text-white mb-6">Urgences (Tickets Récents)</h2>
+        <div class="space-y-4">
+            {% for ticket in recent_tickets %}
+            <div class="p-4 rounded-xl border {% if ticket.priority == 'HIGH' %}border-red-500/20 bg-red-900/10{% else %}border-white/5 hover:bg-white/5{% endif %} transition-colors">
+                <div class="flex justify-between items-start mb-2">
+                    <h4 class="text-sm font-bold text-white">{{ ticket.device.name }}</h4>
+                    {% if ticket.priority == 'HIGH' %}<span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>{% endif %}
+                </div>
+                <p class="text-xs text-gray-400 line-clamp-1 mb-2">{{ ticket.description }}</p>
+                <div class="flex justify-between items-center mt-2 text-[10px]">
+                    <span class="text-gray-500">Par {{ ticket.reported_by.username }}</span>
+                    {% if not ticket.is_resolved %}
+                    <span class="text-orange-400 font-bold uppercase">En attente</span>
+                    {% else %}
+                    <span class="text-emerald-400 font-bold uppercase">Résolu</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-sm text-gray-500 text-center py-4">Aucun ticket ouvert.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    Chart.defaults.color = '#9ca3af';
+    Chart.defaults.font.family = "'Poppins', sans-serif";
+
+    // Data for Category Chart
+    const catLabels = [{% for cat in categories_stats %}"{{ cat.name }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+    const catData = [{% for cat in categories_stats %}{{ cat.device_count }}{% if not forloop.last %},{% endif %}{% endfor %}];
+
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'bar',
+        data: {
+            labels: catLabels.length > 0 ? catLabels : ['Vide'],
+            datasets: [{
+                label: 'Appareils',
+                data: catData.length > 0 ? catData : [0],
+                backgroundColor: 'rgba(59, 130, 246, 0.4)',
+                borderColor: '#3b82f6',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // Data for Health Chart
+    const total = {{ total_devices }};
+    const broken = {{ broken_devices }};
+    const healthy = total - broken;
+
+    new Chart(document.getElementById('healthChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Fonctionnels', 'Hors-Service / Panne'],
+            datasets: [{
+                data: [healthy, broken],
+                backgroundColor: ['rgba(16, 185, 129, 0.6)', 'rgba(239, 68, 68, 0.6)'],
+                borderColor: ['#10b981', '#ef4444'],
+                borderWidth: 1,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '75%',
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

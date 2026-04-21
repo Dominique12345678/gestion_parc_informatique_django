@@ -1,0 +1,38 @@
+{% extends "admin_base.html" %}
+{% block admin_content %}
+<div class="max-w-md mx-auto text-center pt-10">
+    <div class="glass p-10 rounded-3xl border border-emerald-500/30 shadow-[0_0_50px_rgba(16,185,129,0.15)] relative overflow-hidden">
+        
+        <div class="w-16 h-16 bg-emerald-500/20 rounded-full mx-auto flex items-center justify-center mb-6">
+            <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+
+        <h2 class="text-2xl font-bold text-white mb-2">Appareil Enregistré !</h2>
+        <p class="text-gray-400 text-sm mb-8">Le module a bien été intégré à la base de données. Voici l'étiquette QR d'identification générée automatiquement.</p>
+
+        {% if device.qr_code %}
+        <div class="bg-white p-4 rounded-2xl inline-block shadow-lg border-4 border-gray-100 mb-6 group hover:scale-105 transition-transform cursor-pointer">
+            <img src="{{ device.qr_code.url }}" class="w-48 h-48 mx-auto" alt="QR Code">
+        </div>
+        {% endif %}
+
+        <div class="bg-slate-900/50 p-4 rounded-xl border border-white/5 mb-8 text-left">
+            <p class="text-sm text-gray-300"><span class="text-gray-500 w-24 inline-block">Nom:</span> {{ device.name }}</p>
+            <p class="text-sm text-gray-300"><span class="text-gray-500 w-24 inline-block">S/N:</span> <span class="font-mono text-blue-400">{{ device.serial_number }}</span></p>
+        </div>
+
+        <div class="flex flex-col gap-3">
+            <a href="{{ device.qr_code.url }}" download="QR_{{ device.serial_number }}.png" target="_blank" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all mb-2 flex justify-center items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Télécharger le QR Code
+            </a>
+            <a href="{% url 'admin_assign_device' device.id %}" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all">
+                Affecter à un utilisateur maintenant
+            </a>
+            <a href="{% url 'admin_manage_devices' %}" class="w-full py-4 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl transition-all">
+                Retour à l'inventaire
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

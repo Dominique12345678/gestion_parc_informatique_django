@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load account %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-6 pt-20">
+    <div class="glass w-full max-w-md p-10 rounded-3xl border border-white/10 shadow-2xl text-center relative z-10">
+        
+        <div class="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+            <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+
+        <h2 class="text-3xl font-bold text-white mb-4">Confirmation d'Email</h2>
+
+        {% if confirmation %}
+            {% user_display confirmation.email_address.user as user_display %}
+            <p class="text-gray-300 text-sm mb-8 leading-relaxed">
+                Veuillez confirmer que <strong class="text-white">{{ confirmation.email_address.email }}</strong> est bien l'e-mail associé à l'utilisateur <strong>{{ user_display }}</strong>.
+            </p>
+
+            <form method="post" action="{% url 'account_confirm_email' confirmation.key %}">
+                {% csrf_token %}
+                <button type="submit" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)] active:scale-95 text-lg">
+                    Confirmer l'e-mail
+                </button>
+            </form>
+        {% else %}
+            <p class="text-red-400 text-sm mb-4">
+                Ce lien de confirmation est invalide ou a expiré. Veuillez demander un nouveau lien.
+            </p>
+            <a href="{% url 'account_login' %}" class="inline-block w-full py-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all">
+                Retour à la connexion
+            </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

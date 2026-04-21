@@ -1,0 +1,72 @@
+{% extends "admin_base.html" %}
+{% block admin_content %}
+<div class="max-w-5xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white mb-2">Gestion des Catégories</h1>
+        <p class="text-gray-400 text-sm">Créez et listez les familles de vos équipements.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Colonne Formulaire -->
+        <div class="md:col-span-1">
+            <div class="glass p-6 rounded-3xl border border-emerald-500/20 shadow-2xl relative">
+                <div class="absolute -top-4 -left-4 w-16 h-16 bg-emerald-500/10 rounded-full blur-xl"></div>
+                <h3 class="text-lg font-bold text-white mb-4 relative z-10">Créer une catégorie</h3>
+                
+                <form method="POST" class="space-y-4 relative z-10">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div>
+                        <label class="block text-gray-300 text-[10px] font-bold uppercase tracking-widest mb-2 ml-1">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all">
+                        Ajouter
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Colonne Liste -->
+        <div class="md:col-span-2">
+            <div class="glass p-1 rounded-3xl border border-white/5 shadow-2xl">
+                <div class="overflow-hidden rounded-3xl">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-white/5 text-gray-400 text-xs uppercase tracking-widest border-b border-white/10">
+                                <th class="p-5 font-semibold">Nom de la catégorie</th>
+                                <th class="p-5 font-semibold text-center">Appareils liés</th>
+                                <th class="p-5 font-semibold text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-300 text-sm">
+                            {% for cat in categories %}
+                            <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                                <td class="p-5 font-bold text-white">{{ cat.name }}</td>
+                                <td class="p-5 text-center font-mono text-emerald-400">
+                                    {{ cat.device_set.count }}
+                                </td>
+                                <td class="p-5 text-right flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <a href="{% url 'admin_edit_category' cat.id %}" class="p-2 text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 rounded-lg transition-all" title="Modifier">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                    </a>
+                                    <form method="POST" action="{% url 'admin_delete_category' cat.id %}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie logiciellement ?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="p-2 text-red-500 hover:text-white bg-red-500/10 hover:bg-red-500 rounded-lg transition-all" title="Supprimer">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3" class="p-8 text-center text-gray-500">Aucune catégorie existante.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

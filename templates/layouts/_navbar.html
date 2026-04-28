@@ -1,95 +1,105 @@
-<nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" id="navbar">
-    <div class="container mx-auto px-6 py-4">
-        <div class="glass rounded-2xl px-6 py-3 flex items-center justify-between border border-white/10 shadow-xl">
+<nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 py-4" id="navbar">
+    <div class="container mx-auto px-4 md:px-8">
+        <div class="glass-card rounded-[2rem] px-6 py-3 flex items-center justify-between border-white/5 shadow-2xl backdrop-blur-2xl">
 
-            <a href="{% url 'home' %}" class="flex items-center gap-2 group">
-                <div
-                    class="w-10 h-10 bg-gradient-to-tr from-blue-600 to-emerald-400 rounded-lg flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform">
-                    <span class="text-white font-bold text-xl">G</span>
+            <a href="{% url 'home' %}" class="flex items-center gap-4 group">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.3)] group-hover:scale-110 transition-all">
+                    <span class="text-white font-black text-xl italic">G</span>
                 </div>
-                <span class="text-xl font-bold tracking-tight text-white">
-                    G-Parc<span class="text-blue-400">.</span>
+                <span class="text-xl font-black tracking-tighter text-[var(--text)] uppercase italic">
+                    G-Parc<span class="text-blue-500">.</span>
                 </span>
             </a>
 
-            <div class="hidden md:flex items-center gap-8">
-                <a href="{% url 'home' %}"
-                    class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Accueil</a>
+            <div class="hidden md:flex items-center gap-10">
+                <a href="{% url 'home' %}" class="text-[11px] font-black uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text)] transition-all">Accueil</a>
 
                 {% if user.is_authenticated %}
                     {% if user.is_admin or user.is_superuser %}
-                        <a href="{% url 'admin_manage_devices' %}" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Inventaire</a>
-                        <a href="{% url 'admin_manage_users' %}" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Utilisateurs</a>
+                        <a href="{% url 'admin_dashboard' %}" class="text-[11px] font-black uppercase tracking-widest text-blue-500 hover:text-blue-400">Espace Admin</a>
                     {% endif %}
                     
                     {% if user.is_technician %}
-                        <a href="{% url 'tech_tickets' %}" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Tickets</a>
-                    {% endif %}
-
-                    {% if user.is_verified or user.is_admin or user.is_superuser %}
-                        <a href="{% url 'user_dashboard' %}" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Mon Matériel</a>
+                        <a href="{% url 'tech_dashboard' %}" class="text-[11px] font-black uppercase tracking-widest text-orange-500 hover:text-orange-400">Espace Tech</a>
                     {% endif %}
                 {% endif %}
 
-                <div class="h-4 w-[1px] bg-white/20"></div>
+                <div class="h-4 w-px bg-[var(--glass-border)]"></div>
+
+                <!-- Theme Toggle Button -->
+                <button onclick="toggleTheme()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--glass)] border border-[var(--glass-border)] hover:bg-[var(--glass-hover)] transition-all group/theme text-[var(--text)]" title="Changer de thème">
+                    <svg class="w-5 h-5 text-amber-500 block dark:hidden group-hover:rotate-45 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path></svg>
+                    <svg class="w-5 h-5 text-indigo-400 hidden dark:block group-hover:-rotate-12 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                </button>
 
                 {% if user.is_authenticated %}
-                <div class="flex items-center gap-4">
-                    {% if not user.is_verified and not user.is_admin and not user.is_superuser %}
-                    <a href="{% url 'verify_otp' %}"
-                        class="text-xs text-orange-400 bg-orange-400/10 px-2 py-1 rounded-md border border-orange-400/20 animate-pulse">
-                        Vérifier mon compte
+                <div class="flex items-center gap-6">
+                    <a href="{% url 'profile' %}" class="w-10 h-10 rounded-full border border-[var(--glass-border)] bg-[var(--glass)] flex items-center justify-center hover:bg-[var(--glass-hover)] transition-all relative group/p text-[var(--text)]">
+                        <svg class="w-5 h-5 opacity-60 group-hover/p:opacity-100 group-hover/p:text-blue-500 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        {% if not user.is_verified and not user.is_admin and not user.is_superuser %}
+                        <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-[var(--bg)] animate-ping"></span>
+                        {% endif %}
                     </a>
-                    {% else %}
-                    <span
-                        class="text-xs text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-md border border-emerald-400/20">
-                        {{ user.role.name|default:"Utilisateur" }}
-                    </span>
-                    {% endif %}
-
-                    <a href="{% url 'dashboard' %}"
-                        class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Dashboard</a>
-                    <a href="{% url 'profile' %}"
-                        class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Mon Compte</a>
 
                     <form action="{% url 'account_logout' %}" method="post" class="inline">
                         {% csrf_token %}
-                        <button type="submit"
-                            class="text-sm font-medium text-red-400 hover:text-red-300 transition-colors">
+                        <button type="submit" class="text-[10px] font-black uppercase tracking-widest text-red-500/60 hover:text-red-500 transition-all">
                             Déconnexion
                         </button>
                     </form>
                 </div>
                 {% else %}
-                <a href="{% url 'account_login' %}"
-                    class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Connexion</a>
-                <a href="{% url 'account_signup' %}"
-                    class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-blue-500/20">
-                    S'inscrire
-                </a>
+                <div class="flex items-center gap-4">
+                    <a href="{% url 'account_login' %}" class="text-[11px] font-black uppercase tracking-widest text-[var(--text-muted)] hover:text-blue-500 transition-all">Connexion</a>
+                    <a href="{% url 'account_signup' %}" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-black uppercase tracking-widest rounded-xl transition-all shadow-[0_10px_20px_rgba(37,99,235,0.2)]">
+                        S'inscrire
+                    </a>
+                </div>
                 {% endif %}
             </div>
 
-            <button class="md:hidden p-2 text-gray-400 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-400 hover:text-[var(--text)] transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
                 </svg>
             </button>
         </div>
     </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden fixed inset-x-4 top-24 glass-card border-[var(--glass-border)] shadow-2xl p-6 z-[60] fade-in bg-[var(--sidebar-bg)]">
+        <div class="flex flex-col gap-6">
+            <a href="{% url 'home' %}" class="text-sm font-black uppercase tracking-widest text-[var(--text)]">Menu Principal</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'user_dashboard' %}" class="text-xs font-bold text-[var(--text)]">VOS ÉQUIPEMENTS</a>
+                <button onclick="toggleTheme()" class="text-xs font-bold text-blue-500 uppercase">Changer le Thème</button>
+                <form action="{% url 'account_logout' %}" method="post">
+                    {% csrf_token %}
+                    <button class="text-xs font-bold text-red-500">DÉCONNEXION</button>
+                </form>
+            {% else %}
+                <a href="{% url 'account_login' %}" class="text-xs font-bold text-[var(--text)]">CONNEXION</a>
+                <a href="{% url 'account_signup' %}" class="py-3 bg-blue-600 rounded-xl text-center text-xs font-black text-white">NOUVEAU COMPTE</a>
+            {% endif %}
+        </div>
+    </div>
 </nav>
 
 <script>
+    const nav = document.getElementById('navbar');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+
     window.addEventListener('scroll', function () {
-        const nav = document.getElementById('navbar');
-        const glassEffect = nav.querySelector('.glass');
         if (window.scrollY > 50) {
-            nav.classList.add('py-2');
-            glassEffect.classList.add('mx-4', 'shadow-2xl', 'bg-slate-900/80');
+            nav.classList.add('backdrop-blur-xl', 'py-2');
+            nav.style.backgroundColor = 'var(--glass)';
         } else {
-            nav.classList.remove('py-2');
-            glassEffect.classList.remove('mx-4', 'shadow-2xl', 'bg-slate-900/80');
+            nav.classList.remove('backdrop-blur-xl', 'py-2');
+            nav.style.backgroundColor = 'transparent';
         }
     });
+
+    if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
 </script>

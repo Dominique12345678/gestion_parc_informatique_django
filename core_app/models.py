@@ -5,18 +5,22 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 
+from .validators import validate_file_size, validate_image_extension
+
 # ==========================================
 # 1. SYSTÈME D'AUTHENTIFICATION ET RÔLES
 # ==========================================
 
 class Role(models.Model):
-    """Table de référence pour les accès : ADMIN, TECHNICIAN, USER"""
+    """Table de référence pour les accès : ADMIN, HEAD_TECHNICIAN, TECHNICIAN, USER"""
     ADMIN = 'ADMIN'
+    HEAD_TECHNICIAN = 'HEAD_TECHNICIAN'
     TECHNICIAN = 'TECHNICIAN'
     USER = 'USER'
     
     ROLE_CHOICES = [
         (ADMIN, 'Administrateur'),
+        (HEAD_TECHNICIAN, 'Technicien Principal'),
         (TECHNICIAN, 'Technicien IT'),
         (USER, 'Utilisateur Simple'),
     ]
@@ -36,8 +40,11 @@ class User(AbstractUser):
     def is_admin(self):
         return self.role and self.role.name == Role.ADMIN
 
+    def is_head_technician(self):
+        return self.role and self.role.name == Role.HEAD_TECHNICIAN
+
     def is_technician(self):
-        return self.role and self.role.name == Role.TECHNICIAN
+        return self.role and (self.role.name == Role.TECHNICIAN or self.role.name == Role.HEAD_TECHNICIAN)
 
     def is_simple_user(self):
         return self.role and self.role.name == Role.USER
@@ -68,7 +75,7 @@ class Device(models.Model):
     name = models.CharField("Nom de l'appareil", max_length=200)
     serial_number = models.CharField("N° de série", max_length=100, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='devices/', null=True, blank=True)
+    image = models.ImageField(upload_to='devices/', null=True, blank=True, validators=[validate_file_size, validate_image_extension])
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='AVAILABLE')
     
     # Matériel attribué à un collaborateur
@@ -120,9 +127,18 @@ class Ticket(models.Model):
     
     device = models.ForeignKey(Device, on_delete=models.CASCADE, related_name='tickets')
     reported_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reported_tickets')
+    assigned_to = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='assigned_tickets',
+        limit_choices_to={'role__name__in': ['TECHNICIAN', 'HEAD_TECHNICIAN']}
+    )
     description = models.TextField("Description du problème")
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='MEDIUM')
     is_resolved = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -135,11 +151,25 @@ class MaintenanceReport(models.Model):
         User, 
         on_delete=models.SET_NULL, 
         null=True, 
-        limit_choices_to={'role__name': 'TECHNICIAN'}
+        limit_choices_to={'role__name__in': ['TECHNICIAN', 'HEAD_TECHNICIAN']}
     )
     action_taken = models.TextField("Actions effectuées")
     cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    is_deleted = models.BooleanField(default=False)
     repair_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Rapport #{self.id} pour {self.ticket.device.name}"
+
+class TicketChat(models.Model):
+    """Chat en temps réel entre le Technicien Principal et le Technicien assigné sur un ticket"""
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name='chats')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField("Message")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"Message de {self.sender.username} - Ticket #{self.ticket.id}"

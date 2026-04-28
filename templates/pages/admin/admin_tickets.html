@@ -1,0 +1,121 @@
+{% extends "admin_base.html" %}
+{% block admin_content %}
+<div class="fade-in">
+    <div class="flex items-center justify-between mb-12">
+        <div>
+            <h1 class="text-5xl font-black text-[var(--text)] leading-none uppercase tracking-tighter italic">
+                Suivi de <span class="text-red-500">Maintenance</span>
+            </h1>
+            <p class="text-[var(--text-muted)] mt-2 text-sm font-medium tracking-wide">Audit complet des signalements et des interventions techniques.</p>
+        </div>
+        <div class="flex gap-4">
+            <div class="glass-card px-8 py-4 flex items-center gap-6 border-[var(--glass-border)] bg-[var(--glass)]">
+                <div class="text-right">
+                    <p class="text-[9px] uppercase font-black text-[var(--text-muted)] tracking-[0.2em] mb-1">Total Incidents</p>
+                    <p class="text-3xl font-black text-[var(--text)] leading-none">{{ tickets.count }}</p>
+                </div>
+                <div class="w-px h-10 bg-[var(--glass-border)]"></div>
+                <a href="{% url 'export_tickets_pdf' %}" class="flex items-center gap-3 px-6 py-2.5 bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-600 hover:text-white rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest active:scale-95">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    Exporter PDF
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Widgets de Statistiques en ligne -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div class="glass-card p-6 group relative overflow-hidden bg-[var(--glass)]">
+            <div class="absolute -right-6 -top-6 w-24 h-24 bg-red-600/10 rounded-full blur-2xl group-hover:bg-red-600/20 transition-all duration-700"></div>
+            <h3 class="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-[0.25em] mb-4">Urgences Matérielles</h3>
+            <div class="flex items-baseline gap-4">
+                <p class="text-5xl font-black text-red-500 italic glow-text">{{ tickets.count }}</p>
+                <div class="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest leading-tight">Incidents<br>ACTUELS</div>
+            </div>
+        </div>
+
+        <div class="glass-card p-6 group relative overflow-hidden bg-emerald-500/[0.02]">
+            <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all duration-700"></div>
+            <h3 class="text-[9px] font-black text-emerald-500/60 uppercase tracking-[0.25em] mb-4">Taux de résolution</h3>
+            <div class="w-full bg-[var(--glass)] h-2.5 rounded-full overflow-hidden mb-4 border border-[var(--glass-border)] p-0.5">
+                <div class="bg-gradient-to-r from-emerald-600 to-emerald-400 h-full w-[70%] rounded-full shadow-[0_0_10px_rgba(16,185,129,0.3)]"></div>
+            </div>
+            <div class="flex justify-between items-center">
+                <p class="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-widest">Efficience</p>
+                <p class="text-xs font-black text-emerald-500 uppercase">70%</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau en Pleine Largeur -->
+    <div class="glass-card p-2 overflow-hidden border-[var(--glass-border)]">
+        <table class="w-full text-left modern-table">
+            <thead>
+                <tr class="text-[9px] uppercase font-black text-[var(--text-muted)] tracking-[0.3em] border-b border-[var(--glass-border)]">
+                    <th class="p-6">Intervention / Actif</th>
+                    <th class="p-6">État Actuel</th>
+                    <th class="p-6">Expert Technique</th>
+                    <th class="p-6">Coût Estimé</th>
+                </tr>
+            </thead>
+            <tbody class="text-xs font-bold divide-y divide-[var(--glass-border)]">
+                {% for ticket in tickets %}
+                <tr class="group/tk hover:bg-[var(--glass-hover)] transition-all">
+                    <td class="p-6">
+                        <div class="flex items-start gap-5">
+                            <div class="w-14 h-14 bg-[var(--glass)] rounded-2xl flex items-center justify-center border border-[var(--glass-border)] group-hover/tk:border-red-500/30 transition-all duration-500">
+                                <svg class="w-7 h-7 text-[var(--text-muted)] group-hover/tk:text-red-500/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-black text-[var(--text)] text-[15px] mb-1 tracking-tight group-hover/tk:text-blue-500 transition-colors">{{ ticket.device.name }}</h4>
+                                <p class="text-xs text-[var(--text-muted)] italic font-medium">"{{ ticket.description|truncatechars:50 }}"</p>
+                                <div class="flex items-center gap-3 mt-3">
+                                    <span class="text-[9px] font-black uppercase text-blue-500/60 bg-blue-500/5 px-2 py-0.5 rounded border border-blue-500/10">SN: {{ ticket.device.serial_number }}</span>
+                                    <span class="text-[9px] font-black uppercase text-[var(--text-muted)]">Signalé par {{ ticket.reported_by.username }}</span>
+                                    <a href="{% url 'ticket_chat' ticket.id %}" class="ml-2 text-[9px] font-black text-purple-500 uppercase tracking-widest hover:text-purple-400 transition-colors flex items-center gap-1" title="Accéder au Chat"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg> Chat</a>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="p-6">
+                        {% if ticket.is_resolved %}
+                        <div class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Rétabli</span>
+                        </div>
+                        {% else %}
+                        <div class="inline-flex items-center gap-2 px-3 py-1 bg-orange-500/10 border border-orange-500/20 rounded-full">
+                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span>
+                            <span class="text-[9px] font-black text-orange-400 uppercase tracking-widest">En cours</span>
+                        </div>
+                        {% endif %}
+                        <p class="text-[9px] text-[var(--text-muted)] mt-2 font-black uppercase tracking-tighter italic">{{ ticket.created_at|date:"d F Y" }}</p>
+                    </td>
+                    <td class="p-6">
+                        {% if ticket.report %}
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-500/20 to-indigo-500/20 border border-[var(--glass-border)] flex items-center justify-center text-xs font-black text-[var(--text)] shadow-lg">
+                                {{ ticket.report.technician.username|slice:":1"|upper }}
+                            </div>
+                            <div>
+                                <p class="text-[11px] font-black text-[var(--text)] uppercase tracking-tight">{{ ticket.report.technician.username }}</p>
+                                <p class="text-[9px] font-black text-blue-500/60 uppercase tracking-widest">Technicien</p>
+                            </div>
+                        </div>
+                        {% else %}
+                        <span class="text-[9px] font-black text-[var(--text-muted)] italic border border-[var(--glass-border)] px-3 py-1 rounded-full bg-[var(--glass)]">EN ATTENTE D'ASSIGNATION</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-6 font-black text-[13px] tracking-tighter {% if ticket.report.cost > 0 %}text-[var(--text)] glow-text{% else %}text-[var(--text-muted)]{% endif %}">
+                        {{ ticket.report.cost|default:"0.00" }} CFA
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="p-24 text-center text-[var(--text-muted)] font-black uppercase tracking-[0.3em] italic text-sm">Zone de maintenance déserte.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

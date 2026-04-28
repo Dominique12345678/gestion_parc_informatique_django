@@ -1,112 +1,190 @@
 {% extends "admin_base.html" %}
 {% block admin_content %}
-<div class="mb-10">
-    <h1 class="text-3xl font-bold text-white tracking-tight">Tableau de bord Analytique</h1>
-    <p class="text-gray-400 mt-2 text-sm">Vue globale et métriques en temps réel de votre parc informatique.</p>
+<div class="mb-10 fade-in">
+    <h1 class="text-5xl font-black text-[var(--text)] tracking-tighter uppercase italic">Tableau de bord <span class="text-blue-500">Analytique</span></h1>
+    <p class="text-[var(--text-muted)] mt-2 text-sm font-medium tracking-wide">Vue globale et métriques décisionnelles de votre parc informatique.</p>
 </div>
 
+<!-- Alertes de Stock -->
+{% if stock_alerts %}
+<div class="mb-8 p-5 bg-orange-500/10 border border-orange-500/20 rounded-[2rem] animate-pulse fade-in" style="animation-delay: 0.1s;">
+    <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-2xl bg-orange-500/20 flex items-center justify-center border border-orange-500/30">
+            <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        </div>
+        <div>
+            <h4 class="text-[var(--text)] font-black text-sm uppercase tracking-wider">Alerte Stocks Critiques</h4>
+            <p class="text-xs text-gray-400 font-medium">
+                Les catégories suivantes sont en sous-effectif : 
+                {% for cat in stock_alerts %}
+                    <span class="text-orange-400 font-black">{{ cat.name }}</span>{% if not forloop.last %} • {% endif %}
+                {% endfor %}
+            </p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Key Performance Indicators (KPIs) -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-    <div class="glass p-6 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden group hover:bg-white/5 transition-all">
-        <div class="absolute -right-4 -top-4 w-20 h-20 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all"></div>
-        <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">Utilisateurs</h3>
-        <p class="text-4xl font-black text-white">{{ total_users }}</p>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10 fade-in" style="animation-delay: 0.2s;">
+    <div class="glass-card p-8 group overflow-hidden relative">
+        <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all duration-500"></div>
+        <div class="flex flex-col gap-1">
+            <h3 class="text-[var(--text-muted)] text-[10px] font-black uppercase tracking-[0.2em] mb-2">Communauté</h3>
+            <div class="flex items-baseline gap-2">
+                <p class="text-5xl font-black text-[var(--text)] leading-none">{{ total_users }}</p>
+                <span class="text-[10px] font-bold text-[var(--text-muted)]">Membres</span>
+            </div>
+        </div>
     </div>
     
-    <div class="glass p-6 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden group hover:bg-white/5 transition-all">
-        <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-all"></div>
-        <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">Total Équipements</h3>
-        <p class="text-4xl font-black text-emerald-400">{{ total_devices }}</p>
-    </div>
-
-    <div class="glass p-6 rounded-3xl border border-red-500/20 shadow-2xl bg-red-900/10 relative overflow-hidden group hover:bg-red-900/20 transition-all">
-        <div class="flex justify-between items-start">
-            <div>
-                <h3 class="text-red-400 text-xs font-bold uppercase tracking-widest mb-2">En panne</h3>
-                <p class="text-4xl font-black text-red-500">{{ broken_devices }}</p>
+    <div class="glass-card p-8 group overflow-hidden relative">
+        <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all duration-500"></div>
+        <div class="flex flex-col gap-1">
+            <h3 class="text-[var(--text-muted)] text-[10px] font-black uppercase tracking-[0.2em] mb-2">Inventaire</h3>
+            <div class="flex items-baseline gap-2">
+                <p class="text-5xl font-black text-emerald-400 leading-none glow-text">{{ total_devices }}</p>
+                <span class="text-[10px] font-bold text-[var(--text-muted)]">Actifs</span>
             </div>
-            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
         </div>
     </div>
 
-    <div class="glass p-6 rounded-3xl border border-orange-500/20 shadow-2xl bg-orange-900/10 relative overflow-hidden group hover:bg-orange-900/20 transition-all">
-        <h3 class="text-orange-400 text-xs font-bold uppercase tracking-widest mb-2">Tickets Ouverts</h3>
-        <p class="text-4xl font-black text-orange-400">{{ pending_tickets }}</p>
+    <div class="glass-card p-8 group overflow-hidden relative border-red-500/10">
+        <div class="absolute -right-6 -top-6 w-24 h-24 bg-red-500/10 rounded-full blur-2xl group-hover:bg-red-500/20 transition-all duration-500"></div>
+        <div class="flex justify-between items-start">
+            <div class="flex flex-col gap-1">
+                <h3 class="text-red-400/60 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Critique</h3>
+                <div class="flex items-baseline gap-2">
+                    <p class="text-5xl font-black text-red-500 leading-none">{{ broken_devices }}</p>
+                    <span class="text-[10px] font-bold text-red-900">En Panne</span>
+                </div>
+            </div>
+            <span class="w-3 h-3 rounded-full bg-red-500 animate-ping"></span>
+        </div>
+    </div>
+
+    <div class="glass-card p-8 group overflow-hidden relative border-orange-500/10">
+        <div class="absolute -right-6 -top-6 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl group-hover:bg-orange-500/20 transition-all duration-500"></div>
+        <div class="flex flex-col gap-1">
+            <h3 class="text-orange-400/60 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Interventions</h3>
+            <div class="flex items-baseline gap-2">
+                <p class="text-5xl font-black text-orange-400 leading-none">{{ pending_tickets }}</p>
+                <span class="text-[10px] font-bold text-orange-900">Tickets</span>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- Graphiques Chart.js -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-    <div class="glass p-6 rounded-3xl border border-white/5 shadow-2xl">
-        <h2 class="text-lg font-bold text-white mb-6">Répartition par Catégorie</h2>
-        <div class="relative h-64 w-full">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10 fade-in" style="animation-delay: 0.3s;">
+    <div class="glass-card p-8 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20">
+        <h2 class="text-sm font-black text-[var(--text)] uppercase tracking-widest mb-8 flex items-center gap-2">
+            <span class="w-2 h-4 bg-blue-500 rounded-sm animate-pulse"></span>
+            Répartition par Catégorie
+        </h2>
+        <div class="relative h-72 w-full">
             <canvas id="categoryChart"></canvas>
         </div>
     </div>
     
-    <div class="glass p-6 rounded-3xl border border-white/5 shadow-2xl">
-        <h2 class="text-lg font-bold text-white mb-6">État de Santé du Parc (KPI)</h2>
-        <div class="relative h-64 w-full">
+    <div class="glass-card p-8 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-emerald-500/20">
+        <h2 class="text-sm font-black text-[var(--text)] uppercase tracking-widest mb-8 flex items-center gap-2">
+            <span class="w-2 h-4 bg-emerald-500 rounded-sm animate-pulse"></span>
+            État de Santé du Parc
+        </h2>
+        <div class="relative h-72 w-full">
             <canvas id="healthChart"></canvas>
         </div>
     </div>
 </div>
 
-<!-- Tables : Derniers Ajouts & Tickets Récents -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-    <!-- Équipements récents -->
-    <div class="glass p-6 rounded-3xl border border-white/5 shadow-2xl">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-lg font-bold text-white">Derniers Équipements</h2>
-            <a href="{% url 'admin_manage_devices' %}" class="text-xs text-blue-400 hover:text-white transition-colors">Tout voir &rarr;</a>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10 fade-in" style="animation-delay: 0.35s;">
+    <div class="glass-card p-8 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-500/20">
+        <h2 class="text-sm font-black text-[var(--text)] uppercase tracking-widest mb-8 flex items-center gap-2">
+            <span class="w-2 h-4 bg-purple-500 rounded-sm animate-pulse"></span>
+            Statistiques des Tickets
+        </h2>
+        <div class="relative h-72 w-full">
+            <canvas id="ticketStatusChart"></canvas>
         </div>
-        <div class="space-y-4">
+    </div>
+    
+    <div class="glass-card p-8 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/20">
+        <h2 class="text-sm font-black text-[var(--text)] uppercase tracking-widest mb-8 flex items-center gap-2">
+            <span class="w-2 h-4 bg-orange-500 rounded-sm animate-pulse"></span>
+            Statut des Équipements
+        </h2>
+        <div class="relative h-72 w-full">
+            <canvas id="deviceStatusChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Tables : Derniers Ajouts & Tickets Récents -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 fade-in" style="animation-delay: 0.4s;">
+    <!-- Équipements récents -->
+    <div class="glass-card p-8">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-sm font-black text-[var(--text)] uppercase tracking-widest">Nouveaux Arrivages</h2>
+            <a href="{% url 'admin_manage_devices' %}" class="px-4 py-1.5 bg-[var(--glass-border)] border border-[var(--glass-border)] rounded-lg text-[10px] font-bold text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--glass-hover)] transition-all uppercase tracking-widest">Tout l'inventaire</a>
+        </div>
             {% for dev in recent_devices %}
-            <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5">
-                {% if dev.image %}
-                <img src="{{ dev.image.url }}" class="w-12 h-12 rounded-lg object-cover">
-                {% else %}
-                <div class="w-12 h-12 rounded-lg bg-gray-800 flex items-center justify-center border border-white/5"><svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></div>
-                {% endif %}
+            <div class="flex items-center gap-5 p-4 rounded-2xl hover:bg-white/5 transition-all border border-transparent hover:border-white/5 group/row">
+                <div class="relative">
+                    {% if dev.image %}
+                    <img src="{{ dev.image.url }}" class="w-14 h-14 rounded-2xl object-cover border border-white/10 group-hover/row:scale-110 transition-transform">
+                    {% else %}
+                    <div class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5"><svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></div>
+                    {% endif %}
+                </div>
                 <div class="flex-1">
-                    <h4 class="text-sm font-bold text-white">{{ dev.name }}</h4>
-                    <span class="text-[10px] text-gray-400 uppercase tracking-widest">{{ dev.category.name }}</span>
+                    <h4 class="text-[14px] font-black text-[var(--text)] tracking-tight">{{ dev.name }}</h4>
+                    <span class="text-[9px] text-[var(--text-muted)] uppercase font-black tracking-widest">{{ dev.category.name }}</span>
                 </div>
                 <div>
-                    {% if dev.status == 'AVAILABLE' %}<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Stock</span>
-                    {% elif dev.status == 'ASSIGNED' %}<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">Assigné</span>
-                    {% elif dev.status == 'MAINTENANCE' %}<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-orange-500/10 text-orange-400 border border-orange-500/20">Maint.</span>
-                    {% else %}<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20">HS</span>{% endif %}
+                    {% if dev.status == 'AVAILABLE' %}<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">En Stock</span>
+                    {% elif dev.status == 'ASSIGNED' %}<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-blue-500/10 text-blue-400 border border-blue-500/20">Assigné</span>
+                    {% elif dev.status == 'MAINTENANCE' %}<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-orange-500/10 text-orange-400 border border-orange-500/20">Maintenance</span>
+                    {% else %}<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-red-500/10 text-red-500 border border-red-500/20">Hors-Service</span>{% endif %}
                 </div>
             </div>
             {% empty %}
-            <p class="text-sm text-gray-500 text-center py-4">Aucun équipement enregistré.</p>
+            <p class="text-sm text-[var(--text-muted)] text-center py-8 font-bold italic tracking-wide uppercase">Désert numérique : Aucun équipement.</p>
             {% endfor %}
         </div>
     </div>
 
     <!-- Tickets -->
-    <div class="glass p-6 rounded-3xl border border-white/5 shadow-2xl">
-        <h2 class="text-lg font-bold text-white mb-6">Urgences (Tickets Récents)</h2>
+    <div class="glass-card p-8">
+        <h2 class="text-sm font-black text-[var(--text)] uppercase tracking-widest mb-8">Urgences Matérielles</h2>
         <div class="space-y-4">
             {% for ticket in recent_tickets %}
-            <div class="p-4 rounded-xl border {% if ticket.priority == 'HIGH' %}border-red-500/20 bg-red-900/10{% else %}border-white/5 hover:bg-white/5{% endif %} transition-colors">
-                <div class="flex justify-between items-start mb-2">
-                    <h4 class="text-sm font-bold text-white">{{ ticket.device.name }}</h4>
-                    {% if ticket.priority == 'HIGH' %}<span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>{% endif %}
+            <div class="p-5 rounded-3xl border {% if ticket.priority == 'HIGH' %}border-red-500/20 bg-red-500/[0.03] glow-primary{% else %}border-[var(--glass-border)] hover:bg-[var(--glass-hover)]{% endif %} transition-all group/t">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full {% if ticket.priority == 'HIGH' %}bg-red-500 animate-pulse{% else %}bg-blue-500{% endif %}"></div>
+                        <h4 class="text-sm font-black text-[var(--text)] tracking-tight group-hover/t:text-blue-400 transition-colors">{{ ticket.device.name }}</h4>
+                    </div>
+                    <span class="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest">{{ ticket.created_at|timesince }} ago</span>
                 </div>
-                <p class="text-xs text-gray-400 line-clamp-1 mb-2">{{ ticket.description }}</p>
-                <div class="flex justify-between items-center mt-2 text-[10px]">
-                    <span class="text-gray-500">Par {{ ticket.reported_by.username }}</span>
+                <p class="text-xs text-[var(--text-muted)] font-medium line-clamp-1 mb-4 italic">"{{ ticket.description }}"</p>
+                <div class="flex justify-between items-center pt-3 border-t border-white/5 mt-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[8px] font-black text-blue-400 uppercase">
+                            {{ ticket.reported_by.username|slice:":1" }}
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-500">{{ ticket.reported_by.username }}</span>
+                        <a href="{% url 'ticket_chat' ticket.id %}" class="ml-2 text-[10px] font-black text-purple-500 uppercase tracking-widest hover:text-white transition-colors" title="Discuter">Chat</a>
+                    </div>
                     {% if not ticket.is_resolved %}
-                    <span class="text-orange-400 font-bold uppercase">En attente</span>
+                    <span class="text-[9px] font-black text-orange-500 uppercase tracking-widest bg-orange-500/10 px-2 py-0.5 rounded">Action Requise</span>
                     {% else %}
-                    <span class="text-emerald-400 font-bold uppercase">Résolu</span>
+                    <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded">Clôturé</span>
                     {% endif %}
                 </div>
             </div>
             {% empty %}
-            <p class="text-sm text-gray-500 text-center py-4">Aucun ticket ouvert.</p>
+            <p class="text-sm text-gray-600 text-center py-8 font-bold italic tracking-wide uppercase">Ciel serein : Aucune panne.</p>
             {% endfor %}
         </div>
     </div>
@@ -114,8 +192,13 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    Chart.defaults.color = '#9ca3af';
-    Chart.defaults.font.family = "'Poppins', sans-serif";
+    // Configuration globale Chart.js premium
+    const isDark = document.documentElement.classList.contains('dark');
+    const chartTextColor = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(15,23,42,0.4)';
+    
+    Chart.defaults.color = chartTextColor;
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.font.weight = '600';
 
     // Data for Category Chart
     const catLabels = [{% for cat in categories_stats %}"{{ cat.name }}"{% if not forloop.last %},{% endif %}{% endfor %}];
@@ -126,21 +209,32 @@ document.addEventListener("DOMContentLoaded", function() {
         data: {
             labels: catLabels.length > 0 ? catLabels : ['Vide'],
             datasets: [{
-                label: 'Appareils',
-                data: catData.length > 0 ? catData : [0],
+                label: 'Volume',
+                data: catData,
                 backgroundColor: 'rgba(59, 130, 246, 0.4)',
                 borderColor: '#3b82f6',
-                borderWidth: 1,
-                borderRadius: 4
+                borderWidth: 2,
+                borderRadius: 8,
+                hoverBackgroundColor: 'rgba(59, 130, 246, 0.8)',
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1e293b',
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 },
+                    padding: 12,
+                    cornerRadius: 12,
+                    displayColors: false
+                }
+            },
             scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
-                x: { grid: { display: false } }
+                y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.03)', borderDash: [5, 5] }, ticks: { font: { size: 10 } } },
+                x: { grid: { display: false }, ticks: { font: { size: 10 } } }
             }
         }
     });
@@ -153,21 +247,87 @@ document.addEventListener("DOMContentLoaded", function() {
     new Chart(document.getElementById('healthChart'), {
         type: 'doughnut',
         data: {
-            labels: ['Fonctionnels', 'Hors-Service / Panne'],
+            labels: ['Fonctionnels', 'Hors-Service'],
             datasets: [{
                 data: [healthy, broken],
-                backgroundColor: ['rgba(16, 185, 129, 0.6)', 'rgba(239, 68, 68, 0.6)'],
+                backgroundColor: ['rgba(16, 185, 129, 0.5)', 'rgba(239, 68, 68, 0.5)'],
                 borderColor: ['#10b981', '#ef4444'],
                 borderWidth: 1,
-                hoverOffset: 4
+                hoverOffset: 15,
+                borderRadius: 5,
+                spacing: 5
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutout: '75%',
+            cutout: '80%',
+            animation: { animateScale: true, animateRotate: true, duration: 2000, easing: 'easeOutQuart' },
             plugins: {
-                legend: { position: 'bottom' }
+                legend: { position: 'bottom', labels: { boxWidth: 8, usePointStyle: true, font: { size: 11 } } },
+                tooltip: { backgroundColor: '#1e293b', padding: 12, cornerRadius: 12 }
+            }
+        }
+    });
+
+    // Data for Ticket Status Chart
+    const resolvedTickets = {{ resolved_tickets|default:0 }};
+    const pendingTickets = {{ pending_tickets|default:0 }};
+    const highPriorityTickets = {{ high_priority_tickets|default:0 }};
+
+    new Chart(document.getElementById('ticketStatusChart'), {
+        type: 'polarArea',
+        data: {
+            labels: ['Résolus', 'En attente', 'Haute Priorité'],
+            datasets: [{
+                data: [resolvedTickets, pendingTickets, highPriorityTickets],
+                backgroundColor: ['rgba(16, 185, 129, 0.5)', 'rgba(245, 158, 11, 0.5)', 'rgba(239, 68, 68, 0.5)'],
+                borderColor: ['#10b981', '#f59e0b', '#ef4444'],
+                borderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { animateScale: true, animateRotate: true, duration: 2000, easing: 'easeOutQuart' },
+            scales: {
+                r: {
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { display: false }
+                }
+            },
+            plugins: {
+                legend: { position: 'right', labels: { usePointStyle: true, font: { size: 11 } } },
+                tooltip: { backgroundColor: '#1e293b', padding: 12, cornerRadius: 12 }
+            }
+        }
+    });
+
+    // Data for Device Status Chart
+    const availableDevices = {{ available_devices|default:0 }};
+    const assignedDevices = {{ assigned_devices|default:0 }};
+    const maintenanceDevices = {{ maintenance_devices|default:0 }};
+    const brokenStatusDevices = {{ broken_devices|default:0 }};
+
+    new Chart(document.getElementById('deviceStatusChart'), {
+        type: 'pie',
+        data: {
+            labels: ['En Stock', 'Assignés', 'En Maintenance', 'En Panne'],
+            datasets: [{
+                data: [availableDevices, assignedDevices, maintenanceDevices, brokenStatusDevices],
+                backgroundColor: ['rgba(16, 185, 129, 0.5)', 'rgba(59, 130, 246, 0.5)', 'rgba(245, 158, 11, 0.5)', 'rgba(239, 68, 68, 0.5)'],
+                borderColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'],
+                borderWidth: 2,
+                hoverOffset: 15,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { animateScale: true, animateRotate: true, duration: 2000, easing: 'easeOutQuart' },
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 8, usePointStyle: true, font: { size: 11 } } },
+                tooltip: { backgroundColor: '#1e293b', padding: 12, cornerRadius: 12 }
             }
         }
     });

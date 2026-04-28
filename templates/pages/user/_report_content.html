@@ -1,23 +1,21 @@
-{% extends "admin_base.html" %}
-{% block admin_content %}
 <div class="fade-in max-w-2xl mx-auto">
     <div class="flex items-center justify-between mb-12">
         <div>
             <h1 class="text-4xl font-black text-white leading-none uppercase tracking-tighter italic mb-3">
-                {% if device %}Mise à jour <span class="text-blue-500">Actif</span>{% else %}Entrée <span class="text-blue-500">Stock</span>{% endif %}
+                {% if is_edit %}Mise à jour <span class="text-orange-500">Incident</span>{% else %}Nouveau <span class="text-red-500">Signalement</span>{% endif %}
             </h1>
-            <p class="text-gray-500 text-[10px] font-black uppercase tracking-[0.3em]">Protocole d'Indexation du Matériel v2.0</p>
+            <p class="text-gray-500 text-[10px] font-black uppercase tracking-[0.3em]">Protocole de Maintenance v2.4</p>
         </div>
-        <a href="{% url 'admin_manage_devices' %}" class="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/10 rounded-xl transition-all text-[10px] uppercase font-black tracking-widest">
+        <a href="{% url 'user_dashboard' %}" class="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/10 rounded-xl transition-all text-[10px] uppercase font-black tracking-widest">
             Annuler
         </a>
     </div>
 
     <div class="glass-card p-12 rounded-[2.5rem] border-white/5 shadow-2xl relative overflow-hidden group">
         <!-- Glow top -->
-        <div class="absolute -top-20 -right-20 w-64 h-64 bg-blue-600/10 rounded-full blur-[100px] animate-pulse"></div>
+        <div class="absolute -top-20 -right-20 w-64 h-64 bg-red-600/10 rounded-full blur-[100px] animate-pulse"></div>
 
-        <form method="POST" enctype="multipart/form-data" class="space-y-8 relative z-10">
+        <form method="POST" class="space-y-8 relative z-10">
             {% csrf_token %}
             
             {% for field in form %}
@@ -36,16 +34,15 @@
             {% endfor %}
 
             <div class="pt-8 border-t border-white/5 mt-10 flex flex-col sm:flex-row gap-4">
-                <button type="submit" class="flex-1 py-5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all shadow-[0_20px_40px_rgba(37,99,235,0.3)] active:scale-95 text-[11px] uppercase tracking-widest">
-                    {% if device %}Appliquer les Modifications{% else %}Confirmer l'Indexation{% endif %}
+                <button type="submit" class="flex-1 py-5 bg-red-600 hover:bg-red-500 text-white font-black rounded-2xl transition-all shadow-[0_20px_40px_rgba(220,38,38,0.3)] active:scale-95 text-[11px] uppercase tracking-widest">
+                    {% if is_edit %}Confirmer les modifications{% else %}Transmettre le rapport technique{% endif %}
                 </button>
             </div>
             
             <div class="flex items-center justify-center gap-3 mt-8">
-                <div class="w-1 h-1 rounded-full bg-blue-500 animate-ping"></div>
-                <p class="text-[9px] text-gray-700 font-black uppercase tracking-[0.2em] italic">Données synchronisées avec le registre central.</p>
+                <div class="w-1 h-1 rounded-full bg-red-500 animate-ping"></div>
+                <p class="text-[9px] text-gray-700 font-black uppercase tracking-[0.2em] italic">Priorité transmise à la cellule technique.</p>
             </div>
         </form>
     </div>
 </div>
-{% endblock %}

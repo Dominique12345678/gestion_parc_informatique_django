@@ -1,13 +1,17 @@
 {% extends base_template|default:"base.html" %}
 
 {% block content %}
-    <div class="px-6 py-20 pb-32 max-w-2xl mx-auto">
-        {% include "account/_profile_form.html" %}
-    </div>
+    {% if base_template == "admin_base.html" %}
+        {{ block.super }}
+    {% else %}
+        <div class="px-8 py-24 pb-40 max-w-2xl mx-auto">
+            {% include "account/_profile_form.html" %}
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block admin_content %}
-    <div class="max-w-2xl mx-auto">
+    <div class="max-w-2xl mx-auto py-10">
         {% include "account/_profile_form.html" %}
     </div>
 {% endblock %}

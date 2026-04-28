@@ -14,20 +14,23 @@
     <div class="glass p-8 rounded-3xl border border-blue-500/20 shadow-2xl">
         <form method="POST" class="space-y-6">
             {% csrf_token %}
-            
+
             {% for field in form %}
             <div>
-                <label class="block text-gray-300 text-xs font-bold uppercase tracking-widest mb-2 ml-1">{{ field.label }}</label>
+                <label class="block text-gray-300 text-xs font-bold uppercase tracking-widest mb-2 ml-1">{{ field.label
+                    }}</label>
                 {{ field }}
                 {% for error in field.errors %}
-                    <p class="text-red-400 text-xs mt-1">{{ error }}</p>
+                <p class="text-red-400 text-xs mt-1">{{ error }}</p>
                 {% endfor %}
             </div>
             {% endfor %}
 
             <div class="pt-6 border-t border-white/10 flex justify-end gap-4">
-                <a href="{% url 'admin_manage_devices' %}" class="px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl transition-all">Annuler</a>
-                <button type="submit" class="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)]">
+                <a href="{% url 'admin_manage_devices' %}"
+                    class="px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl transition-all">Annuler</a>
+                <button type="submit"
+                    class="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)]">
                     Valider le transfert
                 </button>
             </div>
@@ -40,9 +43,9 @@
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         // Appliquer TomSelect sur le champ 'assigned_to' (l'ID généré par Django est id_assigned_to)
-        new TomSelect("#id_assigned_to",{
+        new TomSelect("#id_assigned_to", {
             create: false,
             sortField: {
                 field: "text",
@@ -55,9 +58,28 @@
 
 <style>
     /* Styling for glassmorphism TomSelect */
-    .ts-control { background: rgba(30, 41, 59, 0.5) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; color: white !important; border-radius: 0.5rem !important; padding: 0.75rem !important; }
-    .ts-control input { color: white !important; }
-    .ts-dropdown { background: #1e293b !important; color: white !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 0.5rem !important; }
-    .ts-dropdown .option.active { background: rgba(59, 130, 246, 0.5) !important; color: white !important; }
+    .ts-control {
+        background: rgba(30, 41, 59, 0.5) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        border-radius: 0.5rem !important;
+        padding: 0.75rem !important;
+    }
+
+    .ts-control input {
+        color: white !important;
+    }
+
+    .ts-dropdown {
+        background: #1e293b !important;
+        color: white !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 0.5rem !important;
+    }
+
+    .ts-dropdown .option.active {
+        background: rgba(59, 130, 246, 0.5) !important;
+        color: white !important;
+    }
 </style>
 {% endblock %}

@@ -34,3 +34,14 @@ def technician_required(function=None, redirect_field_name='next', login_url='ho
     if function:
         return actual_decorator(function)
     return actual_decorator
+
+def head_technician_required(function=None, redirect_field_name='next', login_url='home'):
+    """Vérifie que l'utilisateur est un Technicien Principal ou ADMIN"""
+    actual_decorator = user_passes_test(
+        lambda u: u.is_active and u.is_authenticated and (u.is_head_technician() or u.is_admin() or u.is_superuser),
+        login_url=login_url,
+        redirect_field_name=redirect_field_name
+    )
+    if function:
+        return actual_decorator(function)
+    return actual_decorator

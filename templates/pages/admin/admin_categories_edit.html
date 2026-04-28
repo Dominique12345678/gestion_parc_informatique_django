@@ -2,8 +2,8 @@
 {% block admin_content %}
 <div class="max-w-xl mx-auto">
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-white mb-2">Modifier Catégorie</h1>
-        <p class="text-gray-400 text-sm">Changer le nom de la catégorie.</p>
+        <h1 class="text-3xl font-bold text-[var(--text)] mb-2">Modifier Catégorie</h1>
+        <p class="text-[var(--text-muted)] text-sm">Changer le nom de la catégorie.</p>
     </div>
 
     <div class="glass p-8 rounded-3xl border border-blue-500/20 shadow-2xl">
@@ -11,7 +11,7 @@
             {% csrf_token %}
             {% for field in form %}
             <div>
-                <label class="block text-gray-300 text-xs font-bold uppercase tracking-widest mb-2 ml-1">{{ field.label }}</label>
+                <label class="block text-[var(--text-muted)] text-xs font-bold uppercase tracking-widest mb-2 ml-1">{{ field.label }}</label>
                 {{ field }}
                 {% for error in field.errors %}
                     <p class="text-red-400 text-xs mt-1">{{ error }}</p>
@@ -19,8 +19,8 @@
             </div>
             {% endfor %}
 
-            <div class="pt-6 border-t border-white/10 flex justify-end gap-4">
-                <a href="{% url 'admin_categories' %}" class="px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl transition-all">Annuler</a>
+            <div class="pt-6 border-t border-[var(--glass-border)] flex justify-end gap-4">
+                <a href="{% url 'admin_categories' %}" class="px-6 py-3 bg-[var(--glass)] hover:bg-[var(--glass-hover)] text-[var(--text)] font-bold rounded-xl transition-all border border-[var(--glass-border)]">Annuler</a>
                 <button type="submit" class="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/30">
                     Mettre à jour
                 </button>

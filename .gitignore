@@ -15,7 +15,12 @@ db.sqlite3-journal
 venv/
 env/
 ENV/
-.env/
+# Environment
+.env
+.env.example
+
+# Temporary
+scratch/
 
 # Media and Static
 /static/

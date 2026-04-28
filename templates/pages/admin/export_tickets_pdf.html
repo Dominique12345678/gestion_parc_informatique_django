@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @page { size: A4; margin: 1cm; }
+        body { font-family: 'Helvetica', sans-serif; color: #333; }
+        h1 { text-align: center; color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 10px; }
+        th { background-color: #f3f4f6; font-weight: bold; }
+        .priority-HIGH { color: #dc2626; font-weight: bold; }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: right; font-size: 8px; color: #999; }
+    </style>
+</head>
+<body>
+    <h1>Rapport des Incidents - G-Parc</h1>
+    <p>Généré le : {{ now|date:"d/m/Y H:i" }}</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Appareil</th>
+                <th>SN</th>
+                <th>Priorité</th>
+                <th>Signalé par</th>
+                <th>Etat</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in tickets %}
+            <tr>
+                <td>{{ t.device.name }}</td>
+                <td>{{ t.device.serial_number }}</td>
+                <td class="priority-{{ t.priority }}">{{ t.get_priority_display }}</td>
+                <td>{{ t.reported_by.username }}</td>
+                <td>{% if t.is_resolved %}Résolu{% else %}Ouvert{% endif %}</td>
+                <td>{{ t.created_at|date:"d/m/Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Système de gestion G-Parc - Rapport de Maintenance
+    </div>
+</body>
+</html>

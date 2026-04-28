@@ -1,0 +1,114 @@
+{% extends base_template|default:"admin_base.html" %}
+
+{% block admin_content %}
+<div class="px-6 py-10 max-w-5xl mx-auto h-[calc(100vh-100px)] flex flex-col">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-3xl font-black text-[var(--text)] uppercase tracking-tight">Espace Discussion</h1>
+            <p class="text-[var(--text-muted)] text-sm mt-1">Ticket #{{ ticket.id }} - {{ ticket.device.name }}</p>
+        </div>
+        <a href="{% url 'dashboard' %}" class="px-4 py-2 bg-[var(--glass)] border border-[var(--glass-border)] hover:bg-[var(--glass-hover)] text-[var(--text)] rounded-xl transition-all text-sm font-bold uppercase tracking-wider">
+            Retour
+        </a>
+    </div>
+
+    <!-- Interface Chat -->
+    <div class="glass-card flex-1 flex flex-col overflow-hidden relative shadow-2xl border border-[var(--glass-border)] rounded-3xl">
+        <!-- Header du Chat -->
+        <div class="p-4 bg-[var(--glass)] border-b border-[var(--glass-border)] flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+            </div>
+            <div>
+                <h3 class="text-[var(--text)] font-bold tracking-wide">Discussion temps réel</h3>
+                <p class="text-xs text-emerald-400 font-medium flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> En ligne</p>
+            </div>
+        </div>
+
+        <!-- Zone de Messages -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col">
+            <!-- Messages chargés en AJAX -->
+        </div>
+
+        <!-- Zone de saisie -->
+        <div class="p-4 bg-[var(--glass)] border-t border-[var(--glass-border)]">
+            <form id="chat-form" class="flex items-center gap-4">
+                {% csrf_token %}
+                <input type="text" id="chat-input" placeholder="Saisissez votre message..." class="flex-1 bg-[var(--sidebar-bg)] border border-[var(--glass-border)] rounded-2xl px-6 py-4 text-[var(--text)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-sm">
+                <button type="submit" class="px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white font-black rounded-2xl transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2">
+                    Envoyer
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const chatMessages = document.getElementById('chat-messages');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function fetchMessages() {
+        fetch("{% url 'ticket_chat' ticket.id %}", {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            chatMessages.innerHTML = '';
+            data.messages.forEach(msg => {
+                const alignClass = msg.is_me ? 'self-end' : 'self-start';
+                const bgClass = msg.is_me ? 'bg-blue-500 text-white shadow-lg' : 'bg-[var(--glass-border)] text-[var(--text)]';
+                const radiusClass = msg.is_me ? 'rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl rounded-br-sm' : 'rounded-tl-2xl rounded-tr-2xl rounded-br-2xl rounded-bl-sm';
+                const nameDisplay = msg.is_me ? '' : `<div class="text-[10px] text-[var(--text-muted)] mb-1 font-bold ml-1">${msg.sender} <span class="ml-1 opacity-50 px-1 border border-[var(--glass-border)] rounded-sm text-[8px] uppercase">${msg.role}</span></div>`;
+                
+                const html = `
+                    <div class="max-w-[70%] ${alignClass}">
+                        ${nameDisplay}
+                        <div class="px-5 py-3 shadow-md ${bgClass} ${radiusClass}">
+                            <p class="text-sm">${msg.message}</p>
+                            <div class="text-[9px] text-right mt-1 opacity-70">${msg.time}</div>
+                        </div>
+                    </div>
+                `;
+                chatMessages.insertAdjacentHTML('beforeend', html);
+            });
+            scrollToBottom();
+        });
+    }
+
+    // Charger les messages initiaux et configurer le polling
+    fetchMessages();
+    setInterval(fetchMessages, 3000);
+
+    // Envoi de message
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const msg = chatInput.value.trim();
+        if(!msg) return;
+
+        const formData = new URLSearchParams();
+        formData.append('message', msg);
+
+        fetch("{% url 'ticket_chat' ticket.id %}", {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData.toString()
+        }).then(() => {
+            chatInput.value = '';
+            fetchMessages();
+        });
+    });
+});
+</script>
+{% endblock %}

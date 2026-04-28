@@ -1,16 +1,31 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-votre-cle-secrete-ici'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '1d72-102-64-128-248.ngrok-free.app',
+    'localhost',
+    '127.0.0.1',
+]
+
+# Origines de confiance pour Ngrok (évite les erreurs CSRF)
+CSRF_TRUSTED_ORIGINS = [
+    'https://1d72-102-64-128-248.ngrok-free.app',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
 
 # ==========================================
 # APPLICATION DEFINITION
@@ -71,6 +86,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.csrf',
                 'django.contrib.messages.context_processors.messages',
             ],
         },
@@ -106,7 +122,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory' # Pour ton système de code par mail
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = '/'
 
 # ==========================================
@@ -141,25 +157,32 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ==========================================
+# CACHING (Optimisation)
+# ==========================================
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
+# ==========================================
 # CONFIGURATION EMAIL SMTP (Ex: Gmail)
 # ==========================================
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-# Remplacez ceci par votre VRAIE adresse Gmail
-EMAIL_HOST_USER = 'dominiquetiktok8@gmail.com' 
-# Remplacez ceci par le "Mot de passe d'application" (16 lettres, sans espaces) généré sur votre compte Google
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'votre-mot-de-passe-d-application')
-DEFAULT_FROM_EMAIL = 'G-Parc <dominiquetiktok8@gmail.com>'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = f"G-Parc <{os.getenv('EMAIL_HOST_USER')}>"
 
 # CONFIGURATION GOOGLE OAUTH
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
-        # Mettre votre vrai client_id et secret fournis par Google Cloud console.
         'APP': {
-            'client_id': os.environ.get('GOOGLE_CLIENT_ID', 'votre-client-id'),
-            'secret': os.environ.get('GOOGLE_CLIENT_SECRET', 'votre-secret'),
+            'client_id': os.getenv('GOOGLE_CLIENT_ID'),
+            'secret': os.getenv('GOOGLE_SECRET'),
             'key': ''
         },
         'SCOPE': [

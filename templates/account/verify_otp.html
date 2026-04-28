@@ -15,19 +15,43 @@
         <form method="POST" action="{% url 'verify_otp' %}" class="space-y-6">
             {% csrf_token %}
             <div class="flex justify-center gap-2">
-                <input type="text" name="otp_code" maxlength="6" placeholder="000000" required
-                    class="w-40 text-center text-2xl tracking-[0.5em] font-bold bg-slate-800/50 border border-white/10 rounded-xl py-3 text-white focus:ring-2 focus:ring-blue-500/50 outline-none">
+                <input type="text" name="otp_code" id="otp_input" maxlength="6" placeholder="000000" required autofocus
+                    class="w-48 text-center text-2xl tracking-[0.5em] font-bold bg-slate-800/50 border border-white/10 rounded-xl py-3 text-white focus:ring-2 focus:ring-blue-500/50 outline-none">
             </div>
 
             <button type="submit"
-                class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all">
+                class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/20">
                 Vérifier le compte
             </button>
         </form>
 
-        <p class="mt-6 text-xs text-gray-500">
-            Vous n'avez rien reçu ? <a href="{% url 'resend_otp' %}" class="text-blue-400 hover:underline">Renvoyer le code</a>
-        </p>
+        <div class="mt-8">
+            <p id="resend-timer" class="text-xs text-gray-500">
+                Vous pourrez renvoyer un code dans <span id="timer" class="text-blue-400 font-bold">60</span> secondes.
+            </p>
+            <p id="resend-link" class="hidden text-xs text-gray-500">
+                Vous n'avez rien reçu ? <a href="{% url 'resend_otp' %}" class="text-blue-400 hover:underline">Renvoyer le code</a>
+            </p>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                let timeLeft = 60;
+                const timerElement = document.getElementById('timer');
+                const timerText = document.getElementById('resend-timer');
+                const resendLink = document.getElementById('resend-link');
+
+                const countdown = setInterval(() => {
+                    timeLeft--;
+                    timerElement.innerText = timeLeft;
+                    if (timeLeft <= 0) {
+                        clearInterval(countdown);
+                        timerText.classList.add('hidden');
+                        resendLink.classList.remove('hidden');
+                    }
+                }, 1000);
+            });
+        </script>
     </div>
 </div>
 {% endblock %}

@@ -4,22 +4,237 @@
 {% block footer %}{% endblock %}
 
 {% block content %}
-<div class="flex h-screen bg-slate-900 overflow-hidden text-white font-sans">
+<div class="flex h-screen bg-[var(--bg)] overflow-hidden text-[var(--text)] font-sans relative transition-colors duration-500">
+    <!-- Backdrop (Mobile) -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity duration-300 opacity-0"></div>
+
     <!-- Sidebar Globale Admin -->
     {% include "layouts/_admin_sidebar.html" %}
     
     <!-- Contenu Principal Déroulant -->
-    <div class="flex-1 overflow-y-auto w-full relative">
-        <!-- Effets lumineux background -->
-        <div class="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl mix-blend-screen pointer-events-none animate-blob"></div>
-        <div class="absolute bottom-1/4 left-1/4 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl mix-blend-screen pointer-events-none animate-blob" style="animation-delay: 2s;"></div>
-        
-        <div class="relative z-10 w-full max-w-screen-xl mx-auto px-8 py-10">
-            {% block admin_content %}{% endblock %}
+    <div class="flex-1 overflow-y-auto w-full relative flex flex-col">
+        <!-- Mobile Header (Visible only on small screens) -->
+        <div class="lg:hidden flex items-center justify-between p-4 bg-[var(--sidebar-bg)] border-b border-[var(--glass-border)] z-30">
+            <button id="open-sidebar" class="p-2 text-gray-400 hover:text-[var(--text)] transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+                </svg>
+            </button>
+            <span class="font-bold tracking-tight text-[var(--text)]">G-Parc<span class="text-blue-500">.</span></span>
+            <div class="w-10"></div> <!-- Spacer for centering title -->
+        </div>
+
+        <div class="flex-1 relative">
+            <!-- Effets lumineux background -->
+            <div class="absolute top-0 right-0 w-96 h-96 bg-blue-600/5 rounded-full blur-3xl pointer-events-none animate-blob"></div>
+            <div class="absolute bottom-1/4 left-1/4 w-96 h-96 bg-emerald-600/5 rounded-full blur-3xl pointer-events-none animate-blob" style="animation-delay: 2s;"></div>
+            
+            <div class="relative z-10 w-full max-w-screen-xl mx-auto px-4 lg:px-8 py-6 lg:py-10">
+                {% block admin_content %}{% endblock %}
+            </div>
         </div>
     </div>
 </div>
 
+<script>
+    const sidebar = document.getElementById('admin-sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    const openBtn = document.getElementById('open-sidebar');
+    const closeBtn = document.getElementById('close-sidebar');
+
+    function toggleSidebar(show) {
+        if (show) {
+            sidebar.classList.remove('-translate-x-full');
+            backdrop.classList.remove('hidden');
+            setTimeout(() => backdrop.classList.add('opacity-100'), 10);
+        } else {
+            sidebar.classList.add('-translate-x-full');
+            backdrop.classList.remove('opacity-100');
+            setTimeout(() => backdrop.classList.add('hidden'), 300);
+        }
+    }
+
+    if (openBtn) openBtn.addEventListener('click', () => toggleSidebar(true));
+    if (closeBtn) closeBtn.addEventListener('click', () => toggleSidebar(false));
+    if (backdrop) backdrop.addEventListener('click', () => toggleSidebar(false));
+</script>
+
 <!-- Chart.js Injection (pour le dashboard) -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Voice Assistant UI -->
+{% if user.is_admin or user.is_superuser %}
+<div id="ai-voice-agent" class="fixed bottom-8 right-8 z-[100] flex flex-col items-end gap-4">
+    <!-- Chat Bubble (Hidden by default) -->
+    <div id="ai-bubble" class="hidden w-72 bg-[var(--glass)] border border-[var(--glass-border)] glass-card p-4 rounded-3xl rounded-br-none shadow-2xl origin-bottom-right transition-all scale-0 opacity-0 duration-300">
+        <div class="flex items-center justify-between gap-3 mb-3 border-b border-[var(--glass-border)] pb-2">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-purple-500 rounded-full animate-ping"></div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-purple-500">Agent IA G-Parc</span>
+            </div>
+            <button onclick="document.getElementById('ai-bubble').classList.add('scale-0', 'opacity-0'); setTimeout(() => document.getElementById('ai-bubble').classList.add('hidden'), 300);" class="text-[var(--text-muted)] hover:text-red-500 transition-colors">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <p id="ai-text" class="text-xs text-[var(--text)] font-medium leading-relaxed">Je vous écoute...</p>
+    </div>
+
+    <!-- Mic & Controls -->
+    <div class="flex flex-col gap-3">
+        <button id="ai-mic-btn" class="w-16 h-16 bg-gradient-to-tr from-purple-600 to-blue-500 rounded-full flex items-center justify-center text-white shadow-[0_0_30px_rgba(168,85,247,0.4)] hover:scale-110 transition-all relative group">
+            <div id="mic-pulse" class="absolute inset-0 bg-purple-500 rounded-full animate-ping opacity-0"></div>
+            <svg id="mic-icon" class="w-7 h-7 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+        </button>
+        <button id="ai-stop-speech" class="hidden w-10 h-10 bg-red-600/20 border border-red-500/30 rounded-full flex items-center justify-center text-red-500 hover:bg-red-600 hover:text-white transition-all shadow-lg" title="Arrêter de parler">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd"></path></svg>
+        </button>
+    </div>
+</div>
+
+<script>
+    const aiMicBtn = document.getElementById('ai-mic-btn');
+    const aiStopSpeechBtn = document.getElementById('ai-stop-speech');
+    const aiMicPulse = document.getElementById('mic-pulse');
+    const aiBubbleElem = document.getElementById('ai-bubble');
+    const aiTextElem = document.getElementById('ai-text');
+    let aiRecognition;
+    let isListening = false;
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+        aiRecognition = new SpeechRecognition();
+        aiRecognition.continuous = false;
+        aiRecognition.interimResults = false;
+        aiRecognition.lang = 'fr-FR';
+
+        aiRecognition.onstart = function() {
+            isListening = true;
+            console.log("G-Parc AI Agent: Listening...");
+            aiMicPulse.classList.remove('opacity-0');
+            aiMicBtn.classList.add('ring-4', 'ring-purple-500/50');
+            aiBubbleElem.classList.remove('hidden');
+            setTimeout(() => {
+                aiBubbleElem.classList.remove('scale-0', 'opacity-0');
+            }, 10);
+            aiTextElem.innerText = "Je vous écoute...";
+            aiTextElem.classList.add('animate-pulse');
+        };
+
+        aiRecognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            console.log("G-Parc AI Agent: Heard -> " + transcript);
+            aiTextElem.classList.remove('animate-pulse');
+            aiTextElem.innerHTML = "<span class='text-blue-500 text-[10px] uppercase font-black tracking-widest block mb-1'>Traitement...</span>" + transcript;
+            
+            console.log("Appel IA vers: {% url 'ai_voice_agent' %}");
+            fetch("{% url 'ai_voice_agent' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ text: transcript })
+            })
+            .then(response => {
+                if (response.status === 403) {
+                    throw new Error("ACCES_DENIED");
+                }
+                if (!response.ok) {
+                    throw new Error("HTTP error! status: " + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("G-Parc AI Agent: Réponse -> ", data);
+                aiTextElem.innerHTML = data.reply;
+                speakAI(data.reply);
+            })
+            .catch(error => {
+                console.error("G-Parc AI Agent Error:", error);
+                if (error.message === "ACCES_DENIED") {
+                    aiTextElem.innerText = "Accès refusé. Réservé aux administrateurs.";
+                } else {
+                    aiTextElem.innerText = "Erreur de connexion (Network/Timeout).";
+                }
+                setTimeout(() => { aiBubbleElem.classList.add('scale-0', 'opacity-0'); }, 5000);
+            });
+        };
+
+        aiRecognition.onerror = function(event) {
+            console.error("G-Parc AI Agent Recognition Error:", event.error);
+            aiMicPulse.classList.add('opacity-0');
+            aiTextElem.innerText = "Erreur micro (" + event.error + ").";
+            aiTextElem.classList.remove('animate-pulse');
+            setTimeout(() => { aiBubbleElem.classList.add('scale-0', 'opacity-0'); }, 3000);
+        };
+
+        aiRecognition.onend = function() {
+            isListening = false;
+            console.log("G-Parc AI Agent: Stopped listening.");
+            aiMicPulse.classList.add('opacity-0');
+            aiMicBtn.classList.remove('ring-4', 'ring-purple-500/50');
+        };
+    } else {
+        if (aiMicBtn) aiMicBtn.style.display = 'none';
+        console.error("G-Parc AI Agent: Web Speech API not supported.");
+    }
+
+    if (aiMicBtn) {
+        aiMicBtn.addEventListener('click', () => {
+            if (!SpeechRecognition) {
+                alert("Désolé, votre navigateur ne supporte pas la reconnaissance vocale (SpeechRecognition). Utilisez Chrome ou Edge.");
+                return;
+            }
+            
+            if (isListening) {
+                aiRecognition.stop();
+            } else {
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                    aiStopSpeechBtn.classList.add('hidden');
+                }
+                try {
+                    // Feedback immédiat pour montrer que le clic est pris en compte
+                    aiMicBtn.style.transform = "scale(0.9)";
+                    setTimeout(() => { aiMicBtn.style.transform = ""; }, 100);
+                    
+                    // Montrer la bulle avec un message d'attente
+                    aiBubbleElem.classList.remove('hidden');
+                    setTimeout(() => { aiBubbleElem.classList.remove('scale-0', 'opacity-0'); }, 10);
+                    aiTextElem.innerText = "Activation du micro...";
+                    
+                    console.log("G-Parc AI Agent: Requesting mic permission...");
+                    aiRecognition.start();
+                } catch(e) {
+                    console.error("AI Agent Start Error:", e);
+                    aiTextElem.innerText = "Erreur d'activation.";
+                }
+            }
+        });
+    }
+
+    if (aiStopSpeechBtn) {
+        aiStopSpeechBtn.addEventListener('click', () => {
+            window.speechSynthesis.cancel();
+            aiStopSpeechBtn.classList.add('hidden');
+        });
+    }
+
+    function speakAI(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'fr-FR';
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            
+            utterance.onstart = () => aiStopSpeechBtn.classList.remove('hidden');
+            utterance.onend = () => aiStopSpeechBtn.classList.add('hidden');
+            
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+</script>
+{% endif %}
 {% endblock %}

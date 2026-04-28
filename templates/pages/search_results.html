@@ -1,0 +1,123 @@
+{% extends "admin_base.html" %}
+{% block admin_content %}
+<div class="mb-12 fade-in">
+    <h1 class="text-5xl font-black text-white tracking-tighter uppercase italic">Résultats <span class="text-blue-500">Trouvés</span></h1>
+    <p class="text-gray-500 mt-2 text-sm font-medium tracking-wide">Vous avez recherché : <span class="text-blue-400 font-black">"{{ query }}"</span></p>
+</div>
+
+{% if not devices and not users and not tickets %}
+<div class="glass-card p-24 rounded-[3rem] border-white/5 text-center fade-in">
+    <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-8 border border-white/10 group-hover:scale-110 transition-transform">
+        <svg class="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+    </div>
+    <h2 class="text-2xl font-black text-white mb-4 uppercase italic">Zone de Silence</h2>
+    <p class="text-gray-500 font-medium max-w-md mx-auto italic leading-relaxed">"Aucun fragment de donnée ne correspond à cette requête. Affinez vos paramètres ou vérifiez la signature."</p>
+</div>
+{% else %}
+
+<div class="grid grid-cols-1 gap-12 fade-in" style="animation-delay: 0.1s;">
+    
+    <!-- Équipements -->
+    {% if devices %}
+    <div class="glass-card p-8">
+        <h2 class="text-sm font-black text-white uppercase tracking-[0.25em] mb-10 flex items-center gap-3">
+            <span class="w-2 h-4 bg-blue-500 rounded-sm"></span>
+            Inventaire Détecté ({{ devices|length }})
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for dev in devices %}
+            <div class="p-6 rounded-[2rem] border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-blue-500/20 transition-all group/res overflow-hidden relative">
+                <div class="absolute -right-4 -top-4 w-16 h-16 bg-blue-500/5 rounded-full blur-xl group-hover/res:bg-blue-500/10 transition-all"></div>
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h4 class="text-white font-black text-[15px] tracking-tight group-hover/res:text-blue-400 transition-colors">{{ dev.name }}</h4>
+                        <p class="text-[9px] text-gray-600 font-black uppercase tracking-[0.2em] mt-1">{{ dev.serial_number }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-8 pt-6 border-t border-white/5">
+                    {% if dev.status == 'AVAILABLE' %}<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">En Stock</span>
+                    {% elif dev.status == 'ASSIGNED' %}<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-blue-500/10 text-blue-400 border border-blue-500/20">Assigné</span>
+                    {% elif dev.status == 'MAINTENANCE' %}<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-orange-500/10 text-orange-400 border border-orange-500/20">Maintenance</span>
+                    {% else %}<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-red-500/10 text-red-500 border border-red-500/20">Hors-Service</span>{% endif %}
+                    
+                    <a href="{% url 'admin_device_history' dev.id %}" class="text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-white transition-colors">Visionner &rarr;</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Utilisateurs (Admin Only) -->
+    {% if users %}
+    <div class="glass-card p-8">
+        <h2 class="text-sm font-black text-white uppercase tracking-[0.25em] mb-10 flex items-center gap-3">
+            <span class="w-2 h-4 bg-emerald-500 rounded-sm"></span>
+            Utilisateurs Identifiés ({{ users|length }})
+        </h2>
+        <div class="overflow-x-auto p-2">
+            <table class="w-full text-left modern-table">
+                <thead>
+                    <tr class="text-gray-600 text-[9px] font-black uppercase tracking-[0.3em] border-b border-white/5">
+                        <th class="p-6">Membre</th>
+                        <th class="p-6">Coordonnées</th>
+                        <th class="p-6">Privilèges</th>
+                    </tr>
+                </thead>
+                <tbody class="text-xs font-bold divide-y divide-white/[0.02]">
+                    {% for u in users %}
+                    <tr class="hover:bg-white/[0.01] transition-all group/us">
+                        <td class="p-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 text-white font-black uppercase group-hover/us:border-emerald-500/30 transition-all">{{ u.username|slice:":1" }}</div>
+                                <div>
+                                    <div class="text-white tracking-tight group-hover/us:text-emerald-400 transition-colors">{{ u.username }}</div>
+                                    <div class="text-[10px] text-gray-600 uppercase">{{ u.get_full_name }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-6 italic text-gray-500 font-medium">{{ u.email }}</td>
+                        <td class="p-6 text-[9px] font-black uppercase tracking-widest text-blue-400">{{ u.role.name|default:"Standard" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Tickets -->
+    {% if tickets %}
+    <div class="glass-card p-8 text-white">
+        <h2 class="text-sm font-black text-white uppercase tracking-[0.25em] mb-10 flex items-center gap-3">
+            <span class="w-2 h-4 bg-orange-500 rounded-sm"></span>
+            Journal d'Alertes ({{ tickets|length }})
+        </h2>
+        <div class="space-y-6">
+            {% for t in tickets %}
+            <div class="p-6 rounded-[2rem] border border-white/5 hover:bg-white/[0.01] transition-all group/tk">
+                <div class="flex justify-between items-start mb-4">
+                    <h4 class="text-[15px] font-black text-white italic tracking-tight group-hover/tk:text-orange-400 transition-colors">{{ t.device.name }}</h4>
+                    {% if t.is_resolved %}
+                    <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded">Clôturé</span>
+                    {% else %}
+                    <span class="text-[9px] font-black text-orange-400 uppercase tracking-widest bg-orange-500/10 px-2 py-0.5 rounded italic animate-pulse">Action Requise</span>
+                    {% endif %}
+                </div>
+                <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed italic">"{{ t.description }}"</p>
+                <div class="mt-8 flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                    <span class="text-gray-600">Signalé par {{ t.reported_by.username }}</span>
+                    {% if user.is_technician or user.is_admin %}
+                    <a href="{% url 'tech_handle_ticket' t.id %}" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all">Consulter Dossier</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
